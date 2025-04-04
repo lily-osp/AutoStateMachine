@@ -1,188 +1,139 @@
 # AutoStateMachine Library
 
-## Overview
+A robust, flexible state machine implementation for Arduino and embedded systems that supports event-driven transitions, timed states, and hierarchical state management.
 
-The AutoStateMachine library simplifies the implementation and management of state machines in Arduino projects. A state machine is a computational model that transitions between a finite number of states based on predefined rules or inputs. This library provides an intuitive interface for creating, transitioning, and executing states, making it ideal for applications such as robotics, automation, and control systems.
+## Features
 
-## What is a State Machine?
-
-A **state machine** is a conceptual model used to design systems that can exist in one of a finite number of states at any given time. Each state represents a specific condition or behavior, and the system transitions between these states based on events, inputs, or conditions.
-
-State machines are commonly used in:
-
-- Robotics: To control the behavior of robots based on sensor inputs.
-- Automation: To manage workflows or processes.
-- User Interfaces: To handle UI interactions and navigation logic.
-- Game Development: To control game logic, AI behavior, or animations.
-
-### Components of a State Machine
-
-1. **States**: The distinct conditions or behaviors of the system (e.g., "Idle", "Processing", "Error").
-2. **Events**: The triggers that cause the system to transition from one state to another (e.g., a button press, a timer expiration).
-3. **Transitions**: The rules defining how the system moves from one state to another based on events or conditions.
-4. **Actions**: The tasks or operations performed when entering, exiting, or within a state.
-
-## Mathematical Explanation
-
-A state machine can be formally defined as a **finite state automaton** (FSA) represented by the tuple:
-
-$M = (Q, \Sigma, \delta, q_0, F)$
-
-Where:
-
-- **$Q$**: A finite set of states $ \{q_1, q_2, \dots, q_n\} $.
-- **$\Sigma$**: A finite set of input symbols (the alphabet).
-- **$\delta$**: A transition function $\delta: Q \times \Sigma \to Q$ that maps a state and input symbol to another state.
-- **$q_0$**: The initial state, where $q_0 \in Q$.
-- **$F$**: The set of final or accepting states, where $F \subseteq Q$.
-
-### Transition Function
-
-The transition function $\delta$ defines how the system moves between states based on inputs. For example, if the system is in state $q_1$ and receives input $a$, it transitions to state $q_2$:
-
-$\delta(q_1, a) = q_2$
-
-### Extended Transition Function
-
-For a sequence of inputs $w = a_1a_2\dots a_n$, the extended transition function $\hat{\delta}$ can be defined recursively:
-
-1. $\hat{\delta}(q, \varepsilon) = q$, where $\varepsilon$ is the empty string.
-2. $\hat{\delta}(q, xa) = \delta(\hat{\delta}(q, x), a)$, where $x$ is a string and $a$ is a single input symbol.
-
-### Deterministic vs. Non-Deterministic State Machines
-
-- **Deterministic Finite Automata (DFA)**: Each state has exactly one transition for each input symbol.
-- **Non-Deterministic Finite Automata (NFA)**: A state can have multiple transitions for a single input symbol, or even transitions without input ($\varepsilon$-transitions).
-
-The AutoStateMachine library implements a deterministic model, where each state has one and only one transition for a given condition or event.
-
-## Features of AutoStateMachine Library
-
-- **Simple State Management**: Add, define, and manage states with ease.
-- **Conditional Transitions**: Transition between states based on custom conditions.
-- **Hierarchical State Machines**: Support for nested or sub-state machines.
-- **Lightweight and Efficient**: Designed to work on resource-constrained Arduino platforms.
-- **Flexibility**: Suitable for basic to advanced use cases, from simple toggling to complex workflows.
+- **Template-based configuration** - Set maximum states and transitions at compile time
+- **Multiple transition types** - Event-driven, timed, and conditional transitions
+- **State lifecycle hooks** - Entry and exit callbacks for states
+- **Event system** - Handle external events with optional data payload
+- **Timeouts** - Automatic state transitions after specified durations
+- **Debug support** - Optional verbose logging via Serial or other Print-compatible output
+- **Memory efficient** - No dynamic allocation, fixed memory footprint
 
 ## Installation
 
-1. Download the AutoStateMachine library.
-2. Open the Arduino IDE.
-3. Navigate to **Sketch > Include Library > Add .ZIP Library**.
-4. Select the downloaded library .ZIP file.
-
-## Getting Started
-
-Here are the basic steps to create a state machine with AutoStateMachine:
-
-1. **Include the Library**:
-   
-   ```cpp
-   #include <AutoStateMachine.h>
-   ```
-
-2. **Declare the State Machine**:
-   
-   ```cpp
-   AutoStateMachine stateMachine;
-   ```
-
-3. **Define State Functions**:
-   Create functions to define the behavior for each state.
-   
-   ```cpp
-   void stateOne() {
-       // Actions for state one
-   }
-   void stateTwo() {
-       // Actions for state two
-   }
-   ```
-
-4. **Add States**:
-   Register each state with a unique ID and associated function.
-   
-   ```cpp
-   stateMachine.addState(1, stateOne);
-   stateMachine.addState(2, stateTwo);
-   ```
-
-5. **Set the Initial State**:
-   Define the starting state for the machine.
-   
-   ```cpp
-   stateMachine.setInitialState(1);
-   ```
-
-6. **Run the State Machine**:
-   Call the `run` method in the main loop to execute the current state.
-   
-   ```cpp
-   void loop() {
-       stateMachine.run();
-   }
-   ```
-
-## Examples
-
-### Basic Example
-
-A simple two-state machine alternates between two states every second. See the "examples" folder for the full code.
-
-### Intermediate Example
-
-A state machine transitions based on a counter value. This demonstrates conditional transitions and dynamic behavior.
-
-### Advanced Example
-
-A hierarchical state machine where a main state machine manages a sub-state machine. This approach is useful for modular and scalable designs.
+1. Download the latest release from GitHub
+2. Install via Arduino Library Manager (search for "AutoStateMachine")
+3. Or manually install by placing in your Arduino/libraries folder
 
 ## API Reference
 
-### `AutoStateMachine()`
+### State Machine Configuration
 
-Constructor to initialize the state machine.
+#### `AutoStateMachine<MAX_STATES, MAX_TRANSITIONS>`
+- Template parameters:
+  - `MAX_STATES`: Maximum number of states (default: 10)
+  - `MAX_TRANSITIONS`: Maximum number of transitions (default: 20)
 
-### `void addState(uint8_t id, StateFunction func)`
+### State Management
 
-Adds a state to the state machine.
+#### `bool addState(uint8_t id, StateFunction func, TransitionCallback onEnter = nullptr, TransitionCallback onExit = nullptr)`
+- Adds a new state to the state machine
+- Parameters:
+  - `id`: Unique state identifier
+  - `func`: Function called repeatedly while in this state
+  - `onEnter`: Optional callback when entering state
+  - `onExit`: Optional callback when exiting state
+- Returns: true if state was added successfully
 
-- **`id`**: Unique identifier for the state.
-- **`func`**: Function to execute when the state is active.
+#### `void setInitialState(uint8_t id)`
+- Sets the initial state for the state machine
+- Must be called before running the state machine
 
-### `void setInitialState(uint8_t id)`
+### Transition Management
 
-Sets the initial state of the state machine.
+#### `bool addTransition(uint8_t fromState, uint8_t eventId, uint8_t toState, TransitionCondition condition = nullptr)`
+- Adds an event-triggered transition between states
+- Parameters:
+  - `fromState`: Source state ID
+  - `eventId`: Event identifier that triggers this transition
+  - `toState`: Destination state ID
+  - `condition`: Optional condition function that must return true for transition to occur
+- Returns: true if transition was added successfully
 
-- **`id`**: Identifier of the initial state.
+#### `void setTimeout(uint8_t stateId, unsigned long timeoutMs, uint8_t timeoutState)`
+- Configures a timeout transition for a state
+- Parameters:
+  - `stateId`: State to apply timeout to
+  - `timeoutMs`: Duration in milliseconds before automatic transition
+  - `timeoutState`: State to transition to after timeout
 
-### `void transitionTo(uint8_t id)`
+### Event Handling
 
-Transitions the state machine to the specified state.
+#### `bool handleEvent(uint8_t eventId, void* eventData = nullptr)`
+- Processes an event through the state machine
+- Parameters:
+  - `eventId`: Event identifier
+  - `eventData`: Optional pointer to event-specific data
+- Returns: true if event triggered a state transition
 
-- **`id`**: Identifier of the target state.
+### State Machine Control
 
-### `void run()`
+#### `void run()`
+- Executes the current state's function
+- Should be called frequently in main loop
 
-Executes the current state function.
+#### `void update()`
+- Handles timeouts and executes current state
+- Combines timeout checking and state execution
 
-## Applications
+#### `void reset()`
+- Returns the state machine to its initial state
+- Calls exit/enter callbacks as appropriate
 
-The AutoStateMachine library can be applied to a variety of scenarios, including:
+### Debugging
 
-- **Robotics**: Implementing behavior control based on sensor inputs.
-- **IoT Devices**: Managing device states based on network events or user inputs.
-- **Games**: Handling AI or game logic with finite state machines.
-- **Automation Systems**: Controlling workflows and processes efficiently.
+#### `void enableDebug(Print& debugStream)`
+- Enables debug output
+- Parameters:
+  - `debugStream`: Print-compatible output stream (e.g., Serial)
 
-## Contributing
+#### `void disableDebug()`
+- Disables debug output
 
-Contributions are welcome! If you find bugs or want to propose new features, please create an issue or submit a pull request.
+### State Information
+
+#### `uint8_t getCurrentState() const`
+- Returns: Current state ID
+
+#### `bool stateExists(uint8_t id) const`
+- Checks if a state exists
+- Returns: true if state exists
+
+## Usage Pattern
+
+1. Create state machine instance with desired template parameters
+2. Add all states with their functions and optional callbacks
+3. Configure transitions (event-based and timeout-based)
+4. Set initial state
+5. In main loop:
+   - Call `handleEvent()` for any events
+   - Call `update()` to handle timeouts and run current state
+
+## Best Practices
+
+- Keep state functions short and non-blocking
+- Use event data pointers carefully (ensure proper lifetime)
+- For complex conditions, use separate condition functions
+- Enable debug during development
+- Consider state timeouts for fault recovery
+- Document your state/event IDs with enums
+
+## Examples
+
+See the `examples/` folder for complete usage examples:
+1. `Basic/` - Simple LED blinker
+2. `Intermediate/` - Traffic light controller
+3. `Advanced/` - Thermostat with temperature control
+
+## Limitations
+
+- Fixed maximum states/transitions (set at compile time)
+- No hierarchical state support
+- No built-in serialization for state persistence
 
 ## License
 
-This library is licensed under the MIT License. See the LICENSE file for details.
-
----
-
-With AutoStateMachine, you can easily create robust and scalable state machines for your Arduino projects. Whether you're building a simple toggle system or a complex automation workflow, this library has you covered. Happy coding!
+MIT License - Free for personal and commercial use

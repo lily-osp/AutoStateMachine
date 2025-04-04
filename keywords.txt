@@ -1,0 +1,29 @@
+#######################################
+# Syntax Coloring Map For AutoStateMachine
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+AutoStateMachine	KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+addState	KEYWORD2
+setInitialState	KEYWORD2
+transitionTo	KEYWORD2
+run	KEYWORD2
+update	KEYWORD2
+reset	KEYWORD2
+handleEvent	KEYWORD2
+setTimeout	KEYWORD2
+enableDebug	KEYWORD2
+disableDebug	KEYWORD2
+getCurrentState	KEYWORD2
+stateExists	KEYWORD2
+
+#######################################
+# Constants (LITERAL1)
+#######################################
+MAX_STATES	LITERAL1

@@ -1,36 +1,28 @@
 #include <AutoStateMachine.h>
 
-// Declare the state machine
-AutoStateMachine stateMachine;
+AutoStateMachine<3> fsm; // 3 states max
 
-// Define state functions
-void stateOne()
-{
-    Serial.println("State One");
-    delay(1000);
-    stateMachine.transitionTo(2);
-}
-
-void stateTwo()
-{
-    Serial.println("State Two");
-    delay(1000);
-    stateMachine.transitionTo(1);
-}
+// State functions
+void offState() { digitalWrite(LED_BUILTIN, LOW); }
+void onState() { digitalWrite(LED_BUILTIN, HIGH); }
 
 void setup()
 {
-    Serial.begin(9600);
+    pinMode(LED_BUILTIN, OUTPUT);
 
     // Add states
-    stateMachine.addState(1, stateOne);
-    stateMachine.addState(2, stateTwo);
+    fsm.addState(0, offState); // OFF state
+    fsm.addState(1, onState); // ON state
 
     // Set initial state
-    stateMachine.setInitialState(1);
+    fsm.setInitialState(0);
+
+    // Set timeout transitions
+    fsm.setTimeout(0, 500, 1); // After 500ms OFF, go to ON
+    fsm.setTimeout(1, 500, 0); // After 500ms ON, go to OFF
 }
 
 void loop()
 {
-    stateMachine.run();
+    fsm.update(); // Handles state timeouts and runs current state
 }
